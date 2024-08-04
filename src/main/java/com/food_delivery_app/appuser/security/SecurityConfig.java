@@ -32,8 +32,12 @@ public class SecurityConfig {
         http.addFilterBefore(jwtRequestMapper, UsernamePasswordAuthenticationFilter.class);
          http.csrf().disable().cors().disable();
          http.authorizeHttpRequests()
-                 .requestMatchers("/api/v1/food-app/user/signUp","/api/v1/food-app/user/signIn")
-                 .permitAll();
+                 .requestMatchers("/api/v1/food-app/user/signUp","/api/v1/food-app/user/signIn").permitAll()
+                 .requestMatchers("/api/v1/food-app/restaurant/add","/api/v1/food-app/restaurant/remove"
+                         ,"/api/v1/food-app/restaurant/update/{restaurantId}").hasAnyRole("ADMIN","OWNER")
+                 .requestMatchers( "/api/v1/food-app/restaurant/search").hasRole("USER")
+                 .anyRequest()
+                 .authenticated();
          return http.build();
     }
 
