@@ -1,4 +1,4 @@
-package com.food_delivery_app.appuser.security;
+package com.food_delivery_app.security;
 
 import com.food_delivery_app.appuser.entity.AppUser;
 import com.food_delivery_app.appuser.repository.AppUserRepository;
