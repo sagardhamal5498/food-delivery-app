@@ -32,7 +32,8 @@ public class SecurityConfig {
         http.addFilterBefore(jwtRequestMapper, UsernamePasswordAuthenticationFilter.class);
          http.csrf().disable().cors().disable();
          http.authorizeHttpRequests()
-                 .requestMatchers("/api/v1/food-app/user/signUp","/api/v1/food-app/user/signIn")
+                 .requestMatchers("/api/v1/food-app/user/signUp","/api/v1/food-app/user/signIn"
+                               ,"/api/v1/food-app/ratings/add","/api/v1/food-app/ratings/delete","/api/v1/food-app/ratings/getall")
                  .permitAll();
          return http.build();
     }
