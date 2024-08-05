@@ -13,7 +13,7 @@ import java.util.Date;
 public class JwtService {
 
     @Value("${jwt.expire}")
-    private int expiry;
+    private int expire;
 
     @Value("${jwt.issuer}")
     private String issuer;
@@ -33,7 +33,7 @@ public class JwtService {
 
     public String generateToken(AppUser user){
         return JWT.create().withClaim(USER_NAME,user.getUsername())
-                          .withExpiresAt(new Date(System.currentTimeMillis()+expiry))
+                          .withExpiresAt(new Date(System.currentTimeMillis()+expire))
                           .withIssuer(issuer)
                           .sign(algorithm);
 
