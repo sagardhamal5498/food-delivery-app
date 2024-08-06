@@ -17,7 +17,7 @@ public class Menu {
 
 
     @Column(name = "itemname", length = 50)
-    private String name;
+    private String itemname;
 
     @Enumerated(EnumType.STRING)
     private Category category;

@@ -57,7 +57,7 @@ public class OrderServiceImpl implements  OrderService{
              Cart cart = new Cart();
              cart.setQuantity(orderItem.getQuantity());
              cart.setCustomerOrder(makedOrder);
-             Menu menu = menuRepository.findByNameAndRestaurant(orderItem.getItemName(),restaurant).orElseThrow(
+             Menu menu = menuRepository.findByRestaurantAndItemname(restaurant, orderItem.getItemName()).orElseThrow(
                      ()-> new MenuNotAvailable("Requested Menu are not available")
              );
              cart.setMenu(menu);
@@ -88,7 +88,7 @@ public class OrderServiceImpl implements  OrderService{
          order.setOrderId(yourOrder.getId());
          HashMap<String, Long> hm = new HashMap<>();
          for(Cart cart : listOfItemsOrdered){
-             hm.put(cart.getMenu().getName(), (long)cart.getQuantity());
+             hm.put(cart.getMenu().getItemname(), (long)cart.getQuantity());
          }
          order.setOrderedItems(hm);
          order.setAddress(yourOrder.getAppUser().getAddress());
