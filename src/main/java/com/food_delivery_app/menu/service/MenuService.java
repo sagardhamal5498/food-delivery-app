@@ -10,4 +10,6 @@ public interface MenuService {
      MenuDto addItems(MenuDto menuDto, long restaurantId);
 
      List<MenuDto> getAllItems(long restaurantId);
+
+     MenuDto updatePrice(long restaurantId,String itemname,int newprice);
 }

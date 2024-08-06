@@ -46,6 +46,11 @@ public class RatingServiceImpl implements RatingService{
         Ratings ratingsEntity = dtoToEntity(ratingDto, appUser, restaurant);
         RatingDto2 ratingDto2 = entityToDto(ratingsEntity);
 
+        List<Ratings> listrestaurants = ratingsRepository.findReviewsByRestaurant(restaurant);
+        double avgRating = listrestaurants.stream().mapToDouble(x -> x.getRating()).average().getAsDouble();
+        restaurant.setRating(avgRating);
+        restaurantRepository.save(restaurant);
+
         return ratingDto2;
     }
 
