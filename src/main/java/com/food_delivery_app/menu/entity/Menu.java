@@ -1,5 +1,6 @@
 package com.food_delivery_app.menu.entity;
 
+import com.food_delivery_app.restaurant.entity.Restaurant;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -25,6 +26,10 @@ public class Menu {
 
     @Column(name = "price", nullable = false)
     private Integer price;
+
+    @ManyToOne
+    @JoinColumn(name = "restaurant_id")
+    private Restaurant restaurant;
 
 //EnumType.STRING: This is the safer and more maintainable option because the actual names of the enum constants are stored. However, it may take more storage space in the database.
     //EnumType.ORDINAL: This uses less space because it stores an integer, but it can lead to data corruption if you change the order of constants in the enum.
