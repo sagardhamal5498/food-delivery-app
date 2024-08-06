@@ -1,5 +1,6 @@
-package com.food_delivery_app.menu.entity;
+package com.food_delivery_app.menu.repository;
 
+import com.food_delivery_app.menu.entity.Menu;
 import com.food_delivery_app.restaurant.entity.Restaurant;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

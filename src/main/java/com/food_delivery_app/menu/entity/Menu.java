@@ -15,7 +15,7 @@ public class Menu {
     @Column(name = "id", nullable = false)
     private Integer id;
 
-    @Column(name = "itemname", length = 100)
+    @Column(name = "itemname", length = 50)
     private String itemname;
 
     @Enumerated(EnumType.STRING)

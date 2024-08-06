@@ -6,5 +6,6 @@ public enum Category {
     MainCourse,
     Starter,
     Bread,
-    Chinese
+    Chinese,
+    Desert
 }
