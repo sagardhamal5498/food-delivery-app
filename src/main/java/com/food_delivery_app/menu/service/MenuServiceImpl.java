@@ -64,7 +64,7 @@ public class MenuServiceImpl implements MenuService{
 //            throw new TypeNotFoundException("Type not Found !! "+"\n"+"It should be Veg/NonVeg");
 //        }
         menu1.setCategory(menuDto.getCategory());
-        menu1.setItemname(menuDto.getItemname());
+        menu1.setName(menuDto.getItemname());
         menu1.setType(menuDto.getType());
         menu1.setPrice(menuDto.getPrice());
         menu1.setRestaurant(restaurant);
@@ -77,7 +77,7 @@ public class MenuServiceImpl implements MenuService{
 
         MenuDto menuDto=new MenuDto();
 
-        menuDto.setItemname(menu.getItemname());
+        menuDto.setItemname(menu.getName());
         menuDto.setCategory(menu.getCategory());
         menuDto.setType(menu.getType());
         menuDto.setRestaurantname(menu.getRestaurant().getName());

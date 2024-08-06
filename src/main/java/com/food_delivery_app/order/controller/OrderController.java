@@ -17,17 +17,22 @@ import java.util.List;
 public class OrderController {
 
     private OrderService orderService;
-
     public OrderController(OrderService orderService) {
         this.orderService = orderService;
     }
 
-
     @PostMapping("/make/{restaurantId}")
     public ResponseEntity<?> makeOrder(@RequestBody List<ItemOrderDto> orderedItems, @AuthenticationPrincipal AppUser appUser,
                                        @PathVariable() long restaurantId){
-
-         CustomerOrder order = orderService.makeOrder(orderedItems, appUser, restaurantId);
-        return new ResponseEntity<>(order, HttpStatus.CREATED);
+        return new ResponseEntity<>(orderService.makeOrder(orderedItems, appUser, restaurantId), HttpStatus.CREATED);
     }
+
+
+    @PostMapping("/delete/{orderId}")
+    public ResponseEntity<?> makeOrder( @AuthenticationPrincipal AppUser appUser,
+                                       @PathVariable() long orderId){
+        return new ResponseEntity<>(orderService.deleteOrder(appUser, orderId), HttpStatus.CREATED);
+    }
+
+
 }

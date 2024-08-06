@@ -1,6 +1,7 @@
 package com.food_delivery_app.order.entity;
 
 import com.food_delivery_app.appuser.entity.AppUser;
+import com.food_delivery_app.order.enums.OrderStatus;
 import com.food_delivery_app.restaurant.entity.Restaurant;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -29,8 +30,8 @@ public class CustomerOrder {
     @Column(name = "order_date")
     private LocalDateTime orderDate;
 
-    @Column(name = "order_status", nullable = false)
-    private Boolean orderStatus = false;
+    @Column(name = "order_status")
+    private OrderStatus orderStatus ;
 
     @Column(name = "total_amount")
     private Double totalAmount;
