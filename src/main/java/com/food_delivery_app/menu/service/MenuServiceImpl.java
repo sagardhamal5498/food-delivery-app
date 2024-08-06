@@ -1,11 +1,8 @@
 package com.food_delivery_app.menu.service;
 
 import com.food_delivery_app.menu.entity.Menu;
-import com.food_delivery_app.menu.entity.MenuRepository;
-import com.food_delivery_app.menu.exception.CategoryNotFoundException;
-import com.food_delivery_app.menu.exception.TypeNotFoundException;
+import com.food_delivery_app.menu.repository.MenuRepository;
 import com.food_delivery_app.menu.payload.MenuDto;
-import com.food_delivery_app.rating.exception.NoReviewsFoundException;
 import com.food_delivery_app.restaurant.entity.Restaurant;
 import com.food_delivery_app.restaurant.exception.RestaurantNotFound;
 import com.food_delivery_app.restaurant.repository.RestaurantRepository;

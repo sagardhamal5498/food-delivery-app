@@ -56,10 +56,10 @@ public class RestaurantServiceImpl implements RestaurantService{
          Restaurant restaurant = restaurantRepository.findById(restaurantId).orElseThrow(
                 () -> new RestaurantNotFound("Restaurant id " + restaurantId + "  not found.")
         );
-         restaurant.setMobile(restaurantDto.getMobile());
-         restaurant.setLocation(restaurantDto.getLocation());
-         restaurant.setEmail(restaurantDto.getEmail());
-       return restaurantEntityToDto(restaurantRepository.save(restaurant));
+        restaurant.setMobile(restaurantDto.getMobile() != null && !restaurantDto.getMobile().isEmpty() ? restaurantDto.getMobile() : restaurant.getMobile());
+        restaurant.setLocation(restaurantDto.getLocation() != null && !restaurantDto.getLocation().isEmpty() ? restaurantDto.getLocation() : restaurant.getLocation());
+        restaurant.setEmail(restaurantDto.getEmail() != null && !restaurantDto.getEmail().isEmpty() ? restaurantDto.getEmail() : restaurant.getEmail());
+        return restaurantEntityToDto(restaurantRepository.save(restaurant));
 
     }
 

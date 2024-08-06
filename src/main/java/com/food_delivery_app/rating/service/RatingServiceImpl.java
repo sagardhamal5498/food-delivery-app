@@ -83,14 +83,12 @@ public class RatingServiceImpl implements RatingService{
     }
 
     private Ratings dtoToEntity(RatingDto ratingDto,  AppUser appUser, Restaurant restaurant){
-
         Ratings ratings= new Ratings();
         ratings.setRating(ratingDto.getRating());
         ratings.setDescription(ratingDto.getDescription());
         ratings.setRestaurant(restaurant);
         ratings.setAppUser(appUser);
         Ratings savedRatings = ratingsRepository.save(ratings);
-
         return savedRatings;
     }
 

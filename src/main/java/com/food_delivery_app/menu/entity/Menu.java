@@ -13,10 +13,11 @@ public class Menu {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
-    private Integer id;
+    private Long id;
 
-    @Column(name = "itemname", length = 100)
-    private String itemname;
+
+    @Column(name = "itemname", length = 50)
+    private String name;
 
     @Enumerated(EnumType.STRING)
     private Category category;
@@ -30,8 +31,4 @@ public class Menu {
     @ManyToOne
     @JoinColumn(name = "restaurant_id")
     private Restaurant restaurant;
-
-//EnumType.STRING: This is the safer and more maintainable option because the actual names of the enum constants are stored. However, it may take more storage space in the database.
-    //EnumType.ORDINAL: This uses less space because it stores an integer, but it can lead to data corruption if you change the order of constants in the enum.
-
 }
