@@ -11,21 +11,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 @SpringBootTest
 class FoodDeliveryAppApplicationTests {
 
-	@Autowired
-	private MenuRepository menuRepository;
 
 	@Test
 	void contextLoads() {
 
-		Menu menu=new Menu();
-
-		menu.setCategory(Category.MainCourse);
-		menu.setType(Type.Veg);
-		menu.setItemname("paneer masala");
-		menu.setPrice(200);
-
-		Menu save = menuRepository.save(menu);
-		System.out.println(save);
 	}
 
 }
