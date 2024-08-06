@@ -21,4 +21,11 @@ public class ExceptionHandlings {
     ){
         return new ResponseEntity<>(typeNotFoundException.getMessage(), HttpStatus.BAD_REQUEST);
     }
+
+    @ExceptionHandler(ItemNameNotFoundException.class)
+    public ResponseEntity<?> itemException(
+            ItemNameNotFoundException itemNameNotFoundException
+    ){
+        return new ResponseEntity<>(itemNameNotFoundException.getMessage(), HttpStatus.BAD_REQUEST);
+    }
 }

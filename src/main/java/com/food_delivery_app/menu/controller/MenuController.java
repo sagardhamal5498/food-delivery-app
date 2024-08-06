@@ -31,5 +31,11 @@ public class MenuController {
         return new ResponseEntity<>(menuList, HttpStatus.CREATED);
     }
 
+    @PutMapping("/update")
+    public ResponseEntity<?> updateMenuPrice(
+            @RequestParam long restaurantId, @RequestParam String itemname,@RequestParam int newprice){
 
+        MenuDto menuDto = menuService.updatePrice(restaurantId, itemname, newprice);
+        return new ResponseEntity<>(menuDto, HttpStatus.OK);
+    }
 }

@@ -1,6 +1,7 @@
 package com.food_delivery_app.menu.service;
 
 import com.food_delivery_app.menu.entity.Menu;
+import com.food_delivery_app.menu.exception.ItemNameNotFoundException;
 import com.food_delivery_app.menu.repository.MenuRepository;
 import com.food_delivery_app.menu.payload.MenuDto;
 import com.food_delivery_app.restaurant.entity.Restaurant;
@@ -53,16 +54,35 @@ public class MenuServiceImpl implements MenuService{
         }
     }
 
+    @Override
+    public MenuDto updatePrice(long restaurantId, String itemname, int newprice) {
+
+        Optional<Restaurant> optional = restaurantRepository.findById(restaurantId);
+        if(optional.isPresent()){
+            Restaurant restaurant = optional.get();
+
+            Optional<Menu> optionalMenu = menuRepository.findByRestaurantAndItemname(restaurant, itemname);
+            if(optionalMenu.isPresent()){
+
+                Menu menu = optionalMenu.get();
+                menu.setPrice(newprice);
+                Menu savedMenu = menuRepository.save(menu);
+                MenuDto menuDto = entityToDto(savedMenu);
+                return menuDto;
+            }
+            else{
+                throw new ItemNameNotFoundException("No results found for"+ itemname +" in particular restaurant");
+            }
+        }else {
+            throw new RestaurantNotFound("Restaurant not found!!!");
+        }
+
+    }
+
     Menu dtoToEntity(MenuDto menuDto ,Restaurant restaurant){
 
         Menu menu1=new Menu();
 
-//        if(menuDto.getCategory()==null){
-//            throw new CategoryNotFoundException("Category not Found !! "+"\n"+"It should be MainCourse/Starter/Bread/Chinese");
-//        }
-//        else if(menuDto.getType()==null){
-//            throw new TypeNotFoundException("Type not Found !! "+"\n"+"It should be Veg/NonVeg");
-//        }
         menu1.setCategory(menuDto.getCategory());
         menu1.setItemname(menuDto.getItemname());
         menu1.setType(menuDto.getType());
