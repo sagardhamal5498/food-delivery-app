@@ -23,8 +23,10 @@ public class OrderController {
 
     @PostMapping("/make/{restaurantId}")
     public ResponseEntity<?> makeOrder(@RequestBody List<ItemOrderDto> orderedItems, @AuthenticationPrincipal AppUser appUser,
-                                       @PathVariable() long restaurantId){
-        return new ResponseEntity<>(orderService.makeOrder(orderedItems, appUser, restaurantId), HttpStatus.CREATED);
+                                       @PathVariable() long restaurantId ,@RequestParam String coupon){
+
+        System.out.println(coupon);
+        return new ResponseEntity<>(orderService.makeOrder(orderedItems, appUser, restaurantId,coupon), HttpStatus.CREATED);
     }
 
 

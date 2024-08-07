@@ -8,7 +8,7 @@ import com.food_delivery_app.order.payload.OrderDetailsDto;
 import java.util.List;
 
 public interface OrderService {
-    OrderDetailsDto makeOrder(List<ItemOrderDto> orderedItems, AppUser appUser, long restaurantId);
+    OrderDetailsDto makeOrder(List<ItemOrderDto> orderedItems, AppUser appUser, long restaurantId,String coupon);
 
     String deleteOrder(AppUser appUser, long orderId);
 }

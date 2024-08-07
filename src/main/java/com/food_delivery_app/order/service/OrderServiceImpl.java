@@ -3,6 +3,9 @@ package com.food_delivery_app.order.service;
 import com.food_delivery_app.appuser.entity.AppUser;
 import com.food_delivery_app.cart.entity.Cart;
 import com.food_delivery_app.cart.repostory.CartRepository;
+import com.food_delivery_app.coupon.entity.Coupon;
+import com.food_delivery_app.coupon.exception.CouponNotFoundException;
+import com.food_delivery_app.coupon.repository.CouponRepository;
 import com.food_delivery_app.delivery_executive.entity.DeliveryExecutive;
 import com.food_delivery_app.delivery_executive.repository.DeliveryExecutiveRepository;
 import com.food_delivery_app.menu.entity.Menu;
@@ -19,18 +22,14 @@ import com.food_delivery_app.order.repository.CustomerOrderRepository;
 import com.food_delivery_app.restaurant.entity.Restaurant;
 import com.food_delivery_app.restaurant.exception.RestaurantNotFound;
 import com.food_delivery_app.restaurant.repository.RestaurantRepository;
-import jakarta.persistence.criteria.Order;
 import org.springframework.data.domain.jaxb.SpringDataJaxb;
-import org.springframework.scheduling.annotation.Async;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.Optional;
 import java.util.Random;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
@@ -41,20 +40,21 @@ public class OrderServiceImpl implements  OrderService{
     private MenuRepository menuRepository;
     private final CartRepository cartRepository;
     private DeliveryExecutiveRepository deliveryExecutiveRepository;
-    private final Map<Long, LocalDateTime> newOrdersMap = new ConcurrentHashMap<>();
+    private CouponRepository couponRepository;
 
     public OrderServiceImpl(CustomerOrderRepository customerOrderRepository, RestaurantRepository restaurantRepository, MenuRepository menuRepository,
-                            CartRepository cartRepository, DeliveryExecutiveRepository deliveryExecutiveRepository) {
+                            CartRepository cartRepository, DeliveryExecutiveRepository deliveryExecutiveRepository, CouponRepository couponRepository) {
         this.customerOrderRepository = customerOrderRepository;
 
         this.restaurantRepository = restaurantRepository;
         this.menuRepository = menuRepository;
         this.cartRepository = cartRepository;
         this.deliveryExecutiveRepository = deliveryExecutiveRepository;
+        this.couponRepository = couponRepository;
     }
 
     @Override
-    public OrderDetailsDto makeOrder(List<ItemOrderDto> orderedItems, AppUser appUser, long restaurantId) {
+    public OrderDetailsDto makeOrder(List<ItemOrderDto> orderedItems, AppUser appUser, long restaurantId, String coupon) {
         if(orderedItems.isEmpty()){
             throw new YourCartIsEmpty("Your cart is empty");
         }
@@ -81,39 +81,29 @@ public class OrderServiceImpl implements  OrderService{
          double sum = listOfItemsOrdered.stream().mapToDouble(x -> x.getPrice()).sum();
          makedOrder.setOrderStatus(OrderStatus.PREPARING);
          makedOrder.setTotalAmount(sum);
-         List<DeliveryExecutive> executiveList = deliveryExecutiveRepository.findAll();
+
+        List<DeliveryExecutive> executiveList = deliveryExecutiveRepository.findAll();
         long randomId = selectRandomId(executiveList);
         DeliveryExecutive deliveryExecutive = deliveryExecutiveRepository.findById(randomId).get();
         makedOrder.setDeliveryExecutive(deliveryExecutive);
-        CustomerOrder yourOrder = customerOrderRepository.save(makedOrder);
-        newOrdersMap.put(yourOrder.getId(), yourOrder.getOrderDate());
 
-        return orderReturnDto(yourOrder,listOfItemsOrdered);
-    }
+        if (coupon != null && !coupon.isEmpty()) {
 
-    @Scheduled(fixedRate = 60000)
-    public void updateOrderStatuses() {
-        newOrdersMap.forEach((orderId, creationTime) -> {
-            LocalDateTime now = LocalDateTime.now();
-            if (creationTime.plusMinutes(15).isBefore(now)) {
-                updateOrderStatus(orderId, OrderStatus.OUT_FOR_DELIVERY);
-                newOrdersMap.put(orderId, now);
-            } else if (creationTime.plusMinutes(30).isBefore(now)) {
-                updateOrderStatus(orderId, OrderStatus.DELIVERD);
-                newOrdersMap.remove(orderId);
+            Optional<Coupon> couponOpt = couponRepository.findByCode(coupon);
+            if (couponOpt.isPresent()) {
+                Coupon coupon11 = couponOpt.get();
+                order.applyCoupon(coupon11);
+                makedOrder.setCoupon(coupon11);
+            } else {
+                throw new CouponNotFoundException("Coupon not found or invalid");
             }
-        });
+        }else{
+            makedOrder.finalizeOrderWithoutCoupon();
+        }
+
+        CustomerOrder yourOrder = customerOrderRepository.save(makedOrder);
+         return orderReturnDto(yourOrder,listOfItemsOrdered);
     }
-
-    public void updateOrderStatus(long orderId, OrderStatus newStatus) {
-        CustomerOrder order = customerOrderRepository.findById(orderId)
-                .orElseThrow(() -> new OrderNotFound("Order not found"));
-        order.setOrderStatus(newStatus);
-        order.setOrderDate(LocalDateTime.now());
-        customerOrderRepository.save(order);
-    }
-
-
 
     @Override
     public String deleteOrder(AppUser appUser, long orderId) {

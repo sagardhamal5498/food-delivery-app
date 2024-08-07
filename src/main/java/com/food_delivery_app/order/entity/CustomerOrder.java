@@ -1,6 +1,7 @@
 package com.food_delivery_app.order.entity;
 
 import com.food_delivery_app.appuser.entity.AppUser;
+import com.food_delivery_app.coupon.entity.Coupon;
 import com.food_delivery_app.delivery_executive.entity.DeliveryExecutive;
 import com.food_delivery_app.order.enums.OrderStatus;
 import com.food_delivery_app.restaurant.entity.Restaurant;
@@ -40,5 +41,23 @@ public class CustomerOrder {
     @ManyToOne
     @JoinColumn(name = "delivery_executive_id")
     private DeliveryExecutive deliveryExecutive;
+
+    @ManyToOne
+    @JoinColumn(name = "coupon_id")
+    private Coupon coupon;
+
+    // Method to apply the coupon to the total amount
+    public void applyCoupon(Coupon coupon) {
+        if (coupon != null && coupon.isValid()) {
+            this.totalAmount = this.totalAmount * (1 - coupon.getDiscountPercentage() / 100);
+            this.coupon = coupon;
+        }
+    }
+
+    // Method to finalize the order without any coupon
+    public void finalizeOrderWithoutCoupon() {
+        // No discount applied, just set the totalAmount as is
+        this.coupon = null;
+    }
 
 }
