@@ -3,6 +3,8 @@ package com.food_delivery_app.order.service;
 import com.food_delivery_app.appuser.entity.AppUser;
 import com.food_delivery_app.cart.entity.Cart;
 import com.food_delivery_app.cart.repostory.CartRepository;
+import com.food_delivery_app.delivery_executive.entity.DeliveryExecutive;
+import com.food_delivery_app.delivery_executive.repository.DeliveryExecutiveRepository;
 import com.food_delivery_app.menu.entity.Menu;
 import com.food_delivery_app.menu.repository.MenuRepository;
 import com.food_delivery_app.order.entity.CustomerOrder;
@@ -23,6 +25,9 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.Collectors;
 
 @Service
 public class OrderServiceImpl implements  OrderService{
@@ -30,14 +35,16 @@ public class OrderServiceImpl implements  OrderService{
     private RestaurantRepository restaurantRepository;
     private MenuRepository menuRepository;
     private final CartRepository cartRepository;
+    private DeliveryExecutiveRepository deliveryExecutiveRepository;
 
-    public OrderServiceImpl( CustomerOrderRepository customerOrderRepository, RestaurantRepository restaurantRepository, MenuRepository menuRepository,
-                            CartRepository cartRepository) {
+    public OrderServiceImpl(CustomerOrderRepository customerOrderRepository, RestaurantRepository restaurantRepository, MenuRepository menuRepository,
+                            CartRepository cartRepository, DeliveryExecutiveRepository deliveryExecutiveRepository) {
         this.customerOrderRepository = customerOrderRepository;
 
         this.restaurantRepository = restaurantRepository;
         this.menuRepository = menuRepository;
         this.cartRepository = cartRepository;
+        this.deliveryExecutiveRepository = deliveryExecutiveRepository;
     }
 
     @Override
@@ -68,7 +75,13 @@ public class OrderServiceImpl implements  OrderService{
          double sum = listOfItemsOrdered.stream().mapToDouble(x -> x.getPrice()).sum();
          makedOrder.setOrderStatus(OrderStatus.PREPARING);
          makedOrder.setTotalAmount(sum);
-         CustomerOrder yourOrder = customerOrderRepository.save(makedOrder);
+
+        List<DeliveryExecutive> executiveList = deliveryExecutiveRepository.findAll();
+        long randomId = selectRandomId(executiveList);
+        DeliveryExecutive deliveryExecutive = deliveryExecutiveRepository.findById(randomId).get();
+        makedOrder.setDeliveryExecutive(deliveryExecutive);
+
+        CustomerOrder yourOrder = customerOrderRepository.save(makedOrder);
          return orderReturnDto(yourOrder,listOfItemsOrdered);
     }
 
@@ -97,6 +110,21 @@ public class OrderServiceImpl implements  OrderService{
          order.setTotalAmount(yourOrder.getTotalAmount());
          order.setOrderDateTime(yourOrder.getOrderDate());
          order.setMobile(yourOrder.getAppUser().getMobile());
+         order.setDeliveryExecutiveName(yourOrder.getDeliveryExecutive().getName());
+         order.setDeliveryExecutiveContactNo(yourOrder.getDeliveryExecutive().getMobile());
+
         return order;
+    }
+
+    private static long selectRandomId(List<DeliveryExecutive> executiveList) {
+
+        List<Long> listId = executiveList.stream().map(x -> x.getId()).collect(Collectors.toList());
+
+        if (listId.isEmpty()) {
+            throw new IllegalStateException("No Delivery Executives found");
+        }
+
+        int randomIndex = ThreadLocalRandom.current().nextInt(listId.size());
+        return listId.get(randomIndex);
     }
 }

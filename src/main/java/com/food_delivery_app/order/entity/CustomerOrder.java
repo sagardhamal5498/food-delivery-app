@@ -1,6 +1,7 @@
 package com.food_delivery_app.order.entity;
 
 import com.food_delivery_app.appuser.entity.AppUser;
+import com.food_delivery_app.delivery_executive.entity.DeliveryExecutive;
 import com.food_delivery_app.order.enums.OrderStatus;
 import com.food_delivery_app.restaurant.entity.Restaurant;
 import jakarta.persistence.*;
@@ -36,9 +37,8 @@ public class CustomerOrder {
     @Column(name = "total_amount")
     private Double totalAmount;
 
-
-
-
-
+    @ManyToOne
+    @JoinColumn(name = "delivery_executive_id")
+    private DeliveryExecutive deliveryExecutive;
 
 }

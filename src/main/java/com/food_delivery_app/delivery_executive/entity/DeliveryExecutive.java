@@ -1,5 +1,6 @@
 package com.food_delivery_app.delivery_executive.entity;
 
+import com.food_delivery_app.order.entity.CustomerOrder;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -19,6 +20,5 @@ public class DeliveryExecutive {
 
     @Column(name = "mobile_no", length = 15)
     private String mobile;
-
 
 }

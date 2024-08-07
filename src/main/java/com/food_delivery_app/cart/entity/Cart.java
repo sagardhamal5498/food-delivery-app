@@ -17,9 +17,6 @@ public class Cart {
     @Column(name = "id", nullable = false)
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "menu_id")
-    private Menu menu;
 
     @ManyToOne
     @JoinColumn(name = "customer_order_id")
@@ -30,5 +27,9 @@ public class Cart {
 
     @Column(name = "price")
     private Double price;
+
+    @ManyToOne
+    @JoinColumn(name = "menu_id")
+    private Menu menu;
 
 }

@@ -17,5 +17,7 @@ public class OrderDetailsDto {
     private String restaurantName;
     private Double totalAmount;
     private String orderedStatus;
+    private String deliveryExecutiveName;
+    private String deliveryExecutiveContactNo;
 
 }

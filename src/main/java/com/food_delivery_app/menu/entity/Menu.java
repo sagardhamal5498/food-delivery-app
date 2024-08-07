@@ -15,7 +15,6 @@ public class Menu {
     @Column(name = "id", nullable = false)
     private Long id;
 
-
     @Column(name = "itemname", length = 50)
     private String itemname;
 
