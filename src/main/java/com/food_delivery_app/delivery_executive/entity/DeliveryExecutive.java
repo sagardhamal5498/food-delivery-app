@@ -14,4 +14,11 @@ public class DeliveryExecutive {
     @Column(name = "id", nullable = false)
     private Long id;
 
+    @Column(name = "name", nullable = false, length = 100)
+    private String name;
+
+    @Column(name = "mobile_no", length = 15)
+    private String mobile;
+
+
 }

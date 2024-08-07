@@ -55,12 +55,12 @@ public class OrderServiceImpl implements  OrderService{
          makedOrder.setOrderDate(LocalDateTime.now());
          for(ItemOrderDto orderItem:orderedItems){
              Cart cart = new Cart();
-             cart.setQuantity(orderItem.getQuantity());
              cart.setCustomerOrder(makedOrder);
              Menu menu = menuRepository.findByRestaurantAndItemname(restaurant, orderItem.getItemName()).orElseThrow(
                      ()-> new MenuNotAvailable("Requested Menu are not available")
              );
              cart.setMenu(menu);
+             cart.setQuantity(orderItem.getQuantity());
              cart.setPrice((double) (menu.getPrice()*orderItem.getQuantity()));
              cartRepository.save(cart);
          }
