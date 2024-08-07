@@ -38,7 +38,9 @@ public class SecurityConfig {
                          ,"/api/v1/food-app/restaurant/update/{restaurantId}"
                          ,"/api/v1/food-app/menu/add","/api/v1/food-app/menu/search/{restaurantId}",
                          "/api/v1/food-app/restaurant/search","/api/v1/food-app/order/make/{restaurantId}"
-                 ,"/api/v1/food-app/order/delete/{orderId}","/api/v1/food-app/menu/update").hasAnyRole("USER","ADMIN")
+                 ,"/api/v1/food-app/order/delete/{orderId}","/api/v1/food-app/menu/update",
+                         "/api/v1/food-app/delivery-executive/add","/api/v1/food-app/delivery-executive/delete/{agentId}"
+                 ,"/api/v1/food-app/delivery-executive/update/{agentId}","/api/v1/food-app/delivery-executive/{agentId}/orders").hasAnyRole("USER","ADMIN")
                  .anyRequest()
                  .authenticated();
          return http.build();

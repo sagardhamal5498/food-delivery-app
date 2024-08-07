@@ -21,4 +21,8 @@ public class DeliveryExecutive {
     @Column(name = "mobile_no", length = 15)
     private String mobile;
 
+    @Lob
+    @Column(name = "address")
+    private String address;
+
 }

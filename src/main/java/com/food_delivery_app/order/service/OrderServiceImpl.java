@@ -19,13 +19,18 @@ import com.food_delivery_app.order.repository.CustomerOrderRepository;
 import com.food_delivery_app.restaurant.entity.Restaurant;
 import com.food_delivery_app.restaurant.exception.RestaurantNotFound;
 import com.food_delivery_app.restaurant.repository.RestaurantRepository;
+import jakarta.persistence.criteria.Order;
 import org.springframework.data.domain.jaxb.SpringDataJaxb;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
@@ -36,6 +41,7 @@ public class OrderServiceImpl implements  OrderService{
     private MenuRepository menuRepository;
     private final CartRepository cartRepository;
     private DeliveryExecutiveRepository deliveryExecutiveRepository;
+    private final Map<Long, LocalDateTime> newOrdersMap = new ConcurrentHashMap<>();
 
     public OrderServiceImpl(CustomerOrderRepository customerOrderRepository, RestaurantRepository restaurantRepository, MenuRepository menuRepository,
                             CartRepository cartRepository, DeliveryExecutiveRepository deliveryExecutiveRepository) {
@@ -75,15 +81,39 @@ public class OrderServiceImpl implements  OrderService{
          double sum = listOfItemsOrdered.stream().mapToDouble(x -> x.getPrice()).sum();
          makedOrder.setOrderStatus(OrderStatus.PREPARING);
          makedOrder.setTotalAmount(sum);
-
-        List<DeliveryExecutive> executiveList = deliveryExecutiveRepository.findAll();
+         List<DeliveryExecutive> executiveList = deliveryExecutiveRepository.findAll();
         long randomId = selectRandomId(executiveList);
         DeliveryExecutive deliveryExecutive = deliveryExecutiveRepository.findById(randomId).get();
         makedOrder.setDeliveryExecutive(deliveryExecutive);
-
         CustomerOrder yourOrder = customerOrderRepository.save(makedOrder);
-         return orderReturnDto(yourOrder,listOfItemsOrdered);
+        newOrdersMap.put(yourOrder.getId(), yourOrder.getOrderDate());
+
+        return orderReturnDto(yourOrder,listOfItemsOrdered);
     }
+
+    @Scheduled(fixedRate = 60000) // Check every 1 minute
+    public void updateOrderStatuses() {
+        newOrdersMap.forEach((orderId, creationTime) -> {
+            LocalDateTime now = LocalDateTime.now();
+            if (creationTime.plusMinutes(15).isBefore(now)) {
+                updateOrderStatus(orderId, OrderStatus.OUT_FOR_DELIVERY);
+                newOrdersMap.put(orderId, now); // Update timestamp for next status
+            } else if (creationTime.plusMinutes(30).isBefore(now)) {
+                updateOrderStatus(orderId, OrderStatus.DELIVERD);
+                newOrdersMap.remove(orderId); // Remove from map after final status
+            }
+        });
+    }
+
+    public void updateOrderStatus(long orderId, OrderStatus newStatus) {
+        CustomerOrder order = customerOrderRepository.findById(orderId)
+                .orElseThrow(() -> new OrderNotFound("Order not found"));
+        order.setOrderStatus(newStatus);
+        order.setOrderDate(LocalDateTime.now()); // Update the timestamp
+        customerOrderRepository.save(order);
+    }
+
+
 
     @Override
     public String deleteOrder(AppUser appUser, long orderId) {
