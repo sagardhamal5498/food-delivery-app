@@ -22,14 +22,14 @@ import com.food_delivery_app.order.repository.CustomerOrderRepository;
 import com.food_delivery_app.restaurant.entity.Restaurant;
 import com.food_delivery_app.restaurant.exception.RestaurantNotFound;
 import com.food_delivery_app.restaurant.repository.RestaurantRepository;
-import org.springframework.data.domain.jaxb.SpringDataJaxb;
+
+import com.food_delivery_app.utils.SmsService;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Optional;
-import java.util.Random;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
@@ -41,9 +41,11 @@ public class OrderServiceImpl implements  OrderService{
     private final CartRepository cartRepository;
     private DeliveryExecutiveRepository deliveryExecutiveRepository;
     private CouponRepository couponRepository;
+    private SmsService smsService;
 
+    private final Map<Long, LocalDateTime> newOrdersMap = new ConcurrentHashMap<>();
     public OrderServiceImpl(CustomerOrderRepository customerOrderRepository, RestaurantRepository restaurantRepository, MenuRepository menuRepository,
-                            CartRepository cartRepository, DeliveryExecutiveRepository deliveryExecutiveRepository, CouponRepository couponRepository) {
+                            CartRepository cartRepository, DeliveryExecutiveRepository deliveryExecutiveRepository, CouponRepository couponRepository, SmsService smsService) {
         this.customerOrderRepository = customerOrderRepository;
 
         this.restaurantRepository = restaurantRepository;
@@ -51,6 +53,7 @@ public class OrderServiceImpl implements  OrderService{
         this.cartRepository = cartRepository;
         this.deliveryExecutiveRepository = deliveryExecutiveRepository;
         this.couponRepository = couponRepository;
+        this.smsService = smsService;
     }
 
     @Override
@@ -102,8 +105,36 @@ public class OrderServiceImpl implements  OrderService{
         }
 
         CustomerOrder yourOrder = customerOrderRepository.save(makedOrder);
+        smsService.sendSms(yourOrder.getAppUser().getMobile(), "Thanks for choosing "+yourOrder.getRestaurant().getName()+". We will deliver your order hot and fresh in 30 mins! Order No "+yourOrder.getId()+" Amount Rs."+yourOrder.getTotalAmount()+".");
+        newOrdersMap.put(yourOrder.getId(), yourOrder.getOrderDate());
          return orderReturnDto(yourOrder,listOfItemsOrdered);
     }
+
+    @Scheduled(fixedRate = 60000) // Check every 1 minute
+    public void updateOrderStatuses() {
+        newOrdersMap.forEach((orderId, creationTime) -> {
+            LocalDateTime now = LocalDateTime.now();
+            if (creationTime.plusMinutes(15).isBefore(now)) {
+                updateOrderStatus(orderId, OrderStatus.OUT_FOR_DELIVERY);
+                newOrdersMap.put(orderId, now); // Update timestamp for next status
+            } else if (creationTime.plusMinutes(30).isBefore(now)) {
+                updateOrderStatus(orderId, OrderStatus.DELIVERD);
+                newOrdersMap.remove(orderId); // Remove from map after final status
+            }
+        });
+    }
+
+    public void updateOrderStatus(long orderId, OrderStatus newStatus) {
+        CustomerOrder order = customerOrderRepository.findById(orderId)
+                .orElseThrow(() -> new OrderNotFound("Order not found"));
+        order.setOrderStatus(newStatus);
+        order.setOrderDate(LocalDateTime.now());
+        if(OrderStatus.DELIVERD.equals(newStatus)){
+            smsService.sendSms(order.getAppUser().getMobile(), "Your order is delivered successfully");
+        }// Update the timestamp
+        customerOrderRepository.save(order);
+    }
+
 
     @Override
     public String deleteOrder(AppUser appUser, long orderId) {
