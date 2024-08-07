@@ -91,16 +91,16 @@ public class OrderServiceImpl implements  OrderService{
         return orderReturnDto(yourOrder,listOfItemsOrdered);
     }
 
-    @Scheduled(fixedRate = 60000) // Check every 1 minute
+    @Scheduled(fixedRate = 60000)
     public void updateOrderStatuses() {
         newOrdersMap.forEach((orderId, creationTime) -> {
             LocalDateTime now = LocalDateTime.now();
             if (creationTime.plusMinutes(15).isBefore(now)) {
                 updateOrderStatus(orderId, OrderStatus.OUT_FOR_DELIVERY);
-                newOrdersMap.put(orderId, now); // Update timestamp for next status
+                newOrdersMap.put(orderId, now);
             } else if (creationTime.plusMinutes(30).isBefore(now)) {
                 updateOrderStatus(orderId, OrderStatus.DELIVERD);
-                newOrdersMap.remove(orderId); // Remove from map after final status
+                newOrdersMap.remove(orderId);
             }
         });
     }
@@ -109,7 +109,7 @@ public class OrderServiceImpl implements  OrderService{
         CustomerOrder order = customerOrderRepository.findById(orderId)
                 .orElseThrow(() -> new OrderNotFound("Order not found"));
         order.setOrderStatus(newStatus);
-        order.setOrderDate(LocalDateTime.now()); // Update the timestamp
+        order.setOrderDate(LocalDateTime.now());
         customerOrderRepository.save(order);
     }
 
