@@ -51,7 +51,7 @@ public class OrderServiceImpl implements  OrderService{
          Restaurant restaurant = restaurantRepository.findById(restaurantId).orElseThrow(
                  ()->new RestaurantNotFound("Restaurant not found")
          );
-        makedOrder.setRestaurant(restaurant);
+         makedOrder.setRestaurant(restaurant);
          makedOrder.setOrderDate(LocalDateTime.now());
          for(ItemOrderDto orderItem:orderedItems){
              Cart cart = new Cart();
